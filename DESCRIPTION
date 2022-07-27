@@ -1,0 +1,27 @@
+Package: rsenet
+Type: Package
+Title: Resolve the spatial locations of single cells
+Version: 0.1.0
+Author: Chunxuan Shao
+Maintainer: Chunxuan Shao <c.shao@dkfz-heidelberg.de>
+Description: Identify the spatial locations of single cells based on expression profiles (e.g., scRNA-seq) via Elastic Net with adaptive weights. 
+    Gene expressions in signle cells are used response variable, while expression in reference bins are used as predictor variables. Regulated regression
+    by Elastic Net is employed to find optimal and sparse solutions.
+License: GPL-3
+Encoding: UTF-8
+Depends: R (>= 4.1.2)
+Imports:
+    doRNG,
+    foreach,
+    fpCompare,
+    glmnet,
+    glmnetUtils,
+    magrittr,
+    progressr
+Suggests:
+    doFuture,
+    future,
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
+RoxygenNote: 7.1.2
