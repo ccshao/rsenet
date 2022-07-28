@@ -49,28 +49,17 @@ enet <- function(x, y, adaptive = TRUE, hybrid = TRUE, tau = 1, nfolds = 10, n_r
       return(bin_coef / sum(bin_coef))
     }
 
-    #- A bins by runs matrix.
-    res_one <- fn_list2mtx(res_one, rnames = colnames(x))
-    avg_one <- rowMeans(res_one, na.rm = TRUE)
-    #- The normalized weights of bins to one cell.
+    #- A bins by runs matrix, return normalized weights of bins to one cell.
+    avg_one <- do.call(cbind, res_one) %>% rowMeans(na.rm = TRUE)
     return(avg_one)
   }
 
   #- A bins by cells matrix.
-  res <- fn_list2mtx(res, rnames = colnames(x), cnames = colnames(y))
-  return(res)
-}
-
-#- Convert list to matrix.
-fn_list2mtx <- function(x, rnames = NULL, cnames = NULL) {
-  res <- matrix(unlist(x), ncol = length(x)) %>%
-    set_rownames(rnames) %>%
-    set_colnames(cnames)
+  res <- do.call(cbind, res) %>% set_colnames(colnames(y))
   return(res)
 }
 
 #- Swith adaptive.
-# fn_adaptive_switch <- function(adaptive = TRUE, ...) {
 fn_adaptive_switch <- function(adaptive = TRUE) {
   if (adaptive) {
     fn_adaptive_p
@@ -97,8 +86,6 @@ fn_adaptive_p <- function(x, y, i, tau, nfolds, ...) {
 
 fn_fix_p <- function(x, ...) return(rep_len(1, ncol(x)))
 
-#- Has to add ellipsis otherwise raise error.
-# fn_hybrid_switch <- function(hybrid = TRUE, ...) {
 fn_hybrid_switch <- function(hybrid = TRUE) {
   if (hybrid) {
     fn_enet
