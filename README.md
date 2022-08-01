@@ -21,6 +21,7 @@ install.packages("doFuture")
 A subset of scRNA-seq and reference bins data from fly embyro [1]  are included in the package. Please refer to the publication for more information, including steps of normalization. The inference could be run easily as the following codes.
 ```r
 library(doFuture)
+library(progressr)
 
 registerDoFuture()
 plan(multicore, workers = 4)
@@ -31,6 +32,9 @@ data(example_expr)
 
 #- Returns bins by cells matrix.
 res <- enet(example_bin, example_expr)
+
+#- With progress bar.
+with_progress(res <- enet(example_bin, example_expr))
 ```
 
 # Comparison
