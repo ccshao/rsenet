@@ -15,3 +15,17 @@ dcca <- function(x, y, k) {
   return(list(x = norm_x, y = norm_y))
 }
 
+knn_p <- function(x, y, num_cc = 20, num_bin = 50) {
+  cca_res <- dcca(x, y, num_cc)
+  knn_res <- nn2(cca_res$x, cca$y, num_bin)
+
+  #- cells by bins matrix.
+  mtx <- matrix(0, nrow = ncol(y), ncol = ncol(x))
+
+  for (i in seq_len(nrow(mtx))) {
+    mtx[i, knn_res$nn.idx[i, ]] <- knn_res$nn.dists[i, ]
+  }
+
+  return(mtx)
+}
+
