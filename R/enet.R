@@ -1,7 +1,7 @@
 #' Perform elastic net regression on scRNA-seq and spatial reference data
 #'
 #' This function takes two input matrix, x and y,  performs elastic net regression (via \code{glmnet}) on each column
-#' of y with the x used the predictors.
+#' of y with the x used as the predictors.
 #'
 #' @param x a feature by sample matrix used as predictors.
 #' @param y a feature by sample response matrix while each column will be used as response variables in separate lasso regressions.
@@ -13,10 +13,10 @@
 #' @param n_run number of regression to run per cell.
 #' @param ... additional parameters to \code{glmnet::cv.glmnet} or \code{glmnetUtils::glmnetUtils}.
 #' @details
-#' For each sample in the y, this function tries to find the weights to the bins in x, with non-negative lasso.  If \code{adaptive} is TRUE,
-#' ridge regression will be first perfomred to estimate the \code{penalty.factor}. Optionaly, the alpha value is estiamted via \code{glmnetUtils::cva.glmnet}.
-#' lambda value will always be choosen from \code{nfolds} cross validation.
-#' The estmatied coefficients are normalied to the sum, and the normalized value from \code{n_run} are averaged.
+#'     For each sample in the y, this function tries to find the weights of bins in x using non-negative lasso.  If \code{adaptive} is TRUE,
+#'     ridge regression will be first perfomred to estimate the \code{penalty.factor}. Optionaly, the alpha value is estiamted via \code{glmnetUtils::cva.glmnet}.
+#'     lambda value will always be choosen from \code{nfolds} cross validation.
+#'     The estmatied coefficients are normalied to the sum, and the normalized value from \code{n_run} are averaged.
 #' @return A probility marix with bins in rownames and samples in columns, suggesting the probility of a sample assigned to a bin.
 #' @export
 enet <- function(x, y, adaptive = TRUE, hybrid = TRUE, tau = 1, nfolds = 10, n_run = 10, ...) {
