@@ -9,14 +9,16 @@ Description: Identify the spatial locations of single cells based on expression 
     by Elastic Net is employed to find optimal and sparse solutions.
 License: GPL-3
 Encoding: UTF-8
-Depends: R (>= 4.1.2)
+Depends: R (>= 4.1.0)
 Imports:
     doRNG,
     foreach,
     fpCompare,
     glmnet,
     glmnetUtils,
+    irlba,
     magrittr,
+    RANN,
     progressr
 Suggests:
     doFuture,

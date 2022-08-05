@@ -1,4 +1,4 @@
-#' @importFrom magrittr %>% set_rownames set_colnames
+#' @importFrom magrittr %>% set_rownames set_colnames set_names
 #' @importFrom foreach foreach %do% %dopar%
 #' @importFrom fpCompare %==% %!=%
 #' @importFrom doRNG %dorng%
