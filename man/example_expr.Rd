@@ -11,6 +11,6 @@ A sparse matrix
 data(example_expr)
 }
 \description{
-A gene by cell matrix, values are normalized by read depth. See Nikos Karaiskos et al., (2017) for details.
+A gene by cell matrix, values are normalized on read depth. See Nikos Karaiskos et al., (2017) for details.
 }
 \keyword{datasets}
