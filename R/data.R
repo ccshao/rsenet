@@ -8,7 +8,7 @@
 
 #' Fly embyro single-cell RNAseq data
 #'
-#' A gene by cell matrix, values are normalized by read depth. See Nikos Karaiskos et al., (2017) for details.
+#' A gene by cell matrix, values are normalized on read depth. See Nikos Karaiskos et al., (2017) for details.
 #'
 #' @format A sparse matrix
 #' @usage data(example_expr)

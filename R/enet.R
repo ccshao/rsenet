@@ -1,22 +1,22 @@
-#' Perform elastic net regression on scRNA-seq and spatial reference data
+#' Perform elastic net regression with scRNA-seq and spatial reference data
 #'
-#' This function takes two input matrix, x and y,  performs elastic net regression (via \code{glmnet}) on each column
-#' of y with the x used as the predictors.
+#' This function takes two input matrix, x and y, to  performs elastic net regression (via \code{glmnet}) on each column
+#' of y (cells) with the x used as the predictors.
 #'
-#' @param x a feature by sample matrix used as predictors.
-#' @param y a feature by sample response matrix while each column will be used as response variables in separate lasso regressions.
-#'        The row names of y MUST be identical to those in x. If family = "gaussian", it might be better to transform counts via logarithm (e.g., log2)
-#' @param adaptive whether using adaptive lasso (Default TRUE)
-#' @param hybrid whether to elastic net (hybrid of lasso and ridge regression) or only lasso.
-#' @param tau weights in transforming the penalty. 1 by default, other choices are 0.5, 2.
-#' @param nfolds the number of folds used in cross validation to estimate lambda (and alpha if sepecified).
-#' @param n_run number of regression to run per cell.
+#' @param x a feature by bins matrix used as predictors.
+#' @param y a feature by cells matrix while each column will be used as response variables separately in separate lasso regressions.
+#'        The row names of y MUST be identical to those in x. If family = "gaussian" (default), it might be better to transform counts via logarithm (e.g., log2)
+#' @param adaptive whether using the adaptive process (Default TRUE).
+#' @param hybrid whether to elastic net or lasso (Default TRUE).
+#' @param tau cofficient in transforming the weights to penalty as abs(weights)^(-tau). 1 by default, other choices could be 0.5, 2.
+#' @param nfolds the number of folds used in cross validation to estimate lambda (lambda and alpha in elastic net).
+#' @param n_run times of regresss to repeat per cell.
 #' @param ... additional parameters to \code{glmnet::cv.glmnet} or \code{glmnetUtils::glmnetUtils}.
 #' @details
-#'     For each sample in the y, this function tries to find the weights of bins in x using non-negative lasso.  If \code{adaptive} is TRUE,
-#'     ridge regression will be first perfomred to estimate the \code{penalty.factor}. Optionaly, the alpha value is estiamted via \code{glmnetUtils::cva.glmnet}.
-#'     lambda value will always be choosen from \code{nfolds} cross validation.
-#'     The estmatied coefficients are normalied to the sum, and the normalized value from \code{n_run} are averaged.
+#'     For each sample in the y, \code{enet} tries to find the weights of bins in x using non-negative elastic net. If \code{adaptive} is TRUE,
+#'     ridge regression will be first performed to estimate the \code{penalty.factor}. If \code{hybrid} is TRUE,
+#'     elastic net regression will be used with alpha and lambda are both estimated via cross validation.
+#'     The estmatied coefficients are normalized by the sum, and averaged value from repeated runs are returned.
 #' @return A probility marix with bins in rownames and samples in columns, suggesting the probility of a sample assigned to a bin.
 #' @export
 enet <- function(x, y, adaptive = TRUE, hybrid = TRUE, tau = 1, nfolds = 10, n_run = 10, ...) {
