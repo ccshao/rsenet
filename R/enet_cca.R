@@ -21,6 +21,8 @@
 #' @return A probility marix with bins in rownames and cells in columns, suggesting the probility of a cell assigned to a bin.
 #' @export
 enet_cca <- function(x, y, adaptive = TRUE, hybrid = TRUE, tau = 1, nfolds = 10, n_run = 5, num_cc = 20, num_bin = 50, ...) {
+  stopifnot(identical(rownames(x), rownames(y)))
+
   i <- NULL
 
   cca_mtx <- knn_p(x, y, num_cc, num_bin)

@@ -20,6 +20,8 @@
 #' @return A probility marix with bins in rownames and samples in columns, suggesting the probility of a sample assigned to a bin.
 #' @export
 enet <- function(x, y, adaptive = TRUE, hybrid = TRUE, tau = 1, nfolds = 10, n_run = 10, ...) {
+  stopifnot(identical(rownames(x), rownames(y)))
+
   i <- j <- NULL
 
   if (adaptive) {
