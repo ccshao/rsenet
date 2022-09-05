@@ -22,6 +22,8 @@
 #' @export
 enet_cca <- function(x, y, adaptive = TRUE, hybrid = TRUE, tau = 1, nfolds = 10, n_run = 5, num_cc = 20, num_bin = 50, ...) {
   stopifnot(identical(rownames(x), rownames(y)))
+  stopifnot(is(x, "sparseMatrix") || is.matrix(x))
+  stopifnot(is(y, "sparseMatrix") || is.matrix(y))
 
   i <- NULL
 

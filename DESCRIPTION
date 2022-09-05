@@ -18,6 +18,8 @@ Imports:
     glmnetUtils,
     irlba,
     magrittr,
+    methods,
+    Matrix,
     RANN,
     progressr
 Suggests:
