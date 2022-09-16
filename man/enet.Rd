@@ -12,6 +12,7 @@ enet(
   tau = 1,
   nfolds = 10,
   n_run = 10,
+  alpha = seq(0.2, 1, by = 0.1),
   ...
 )
 }
@@ -30,6 +31,8 @@ The row names of y MUST be identical to those in x. If family = "gaussian" (defa
 \item{nfolds}{the number of folds used in cross validation to estimate lambda (lambda and alpha in elastic net).}
 
 \item{n_run}{times of regresss to repeat per cell.}
+
+\item{alpha}{list of alpha value used in evaluation. Note high alpha value tends to lasso regression.}
 
 \item{...}{additional parameters to \code{glmnet::cv.glmnet} or \code{glmnetUtils::glmnetUtils}.}
 }

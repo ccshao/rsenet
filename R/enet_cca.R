@@ -13,6 +13,7 @@
 #' @param n_run times of regresss to repeat per cell.
 #' @param num_cc number of canonical correlation vector to use.
 #' @param num_bin number of nearest bins to select.
+#' @param alpha list of alpha value used in evaluation. Note high alpha value tends to lasso regression.
 #' @param ... additional parameters to \code{glmnet::cv.glmnet} or \code{glmnetUtils::glmnetUtils}.
 #' @details
 #'     Similar to \code{enet}, but with bins in x are pre-selected by diagonal CCA. The euclidean distance between cells and nearest bins
@@ -20,7 +21,7 @@
 #'     The calculation is much faster than \code{enet} due to no individual estimation of penalty via ridge regression per cell.
 #' @return A probility marix with bins in rownames and cells in columns, suggesting the probility of a cell assigned to a bin.
 #' @export
-enet_cca <- function(x, y, adaptive = TRUE, hybrid = TRUE, tau = 1, nfolds = 10, n_run = 5, num_cc = 20, num_bin = 50, ...) {
+enet_cca <- function(x, y, adaptive = TRUE, hybrid = TRUE, tau = 1, nfolds = 10, n_run = 5, num_cc = 20, num_bin = 50, alpha = seq(0.2, 1.0, by = .1), ...) {
   stopifnot(identical(rownames(x), rownames(y)))
   stopifnot(is(x, "sparseMatrix") || is.matrix(x))
   stopifnot(is(y, "sparseMatrix") || is.matrix(y))
@@ -46,7 +47,7 @@ enet_cca <- function(x, y, adaptive = TRUE, hybrid = TRUE, tau = 1, nfolds = 10,
     penalty_f <- cca_nn[cca_nn != -1]
 
     res_one <- foreach(j = seq_len(n_run)) %do% {
-      bin_coef <- fn_fit(x_new, y, i, nfolds, penalty_f, ...)
+      bin_coef <- fn_fit(x_new, y, i, nfolds, penalty_f, alpha, ...)
       return(bin_coef / sum(bin_coef))
     }
 

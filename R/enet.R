@@ -11,6 +11,7 @@
 #' @param tau cofficient in transforming the weights to penalty as abs(weights)^(-tau). 1 by default, other choices could be 0.5, 2.
 #' @param nfolds the number of folds used in cross validation to estimate lambda (lambda and alpha in elastic net).
 #' @param n_run times of regresss to repeat per cell.
+#' @param alpha list of alpha value used in evaluation. Note high alpha value tends to lasso regression.
 #' @param ... additional parameters to \code{glmnet::cv.glmnet} or \code{glmnetUtils::glmnetUtils}.
 #' @details
 #'     For each sample in the y, \code{enet} tries to find the weights of bins in x using non-negative elastic net. If \code{adaptive} is TRUE,
@@ -19,7 +20,7 @@
 #'     The estmatied coefficients are normalized by the sum, and averaged value from repeated runs are returned.
 #' @return A probility marix with bins in rownames and samples in columns, suggesting the probility of a sample assigned to a bin.
 #' @export
-enet <- function(x, y, adaptive = TRUE, hybrid = TRUE, tau = 1, nfolds = 10, n_run = 10, ...) {
+enet <- function(x, y, adaptive = TRUE, hybrid = TRUE, tau = 1, nfolds = 10, n_run = 10, alpha = seq(0.2, 1.0, by = .1), ...) {
   stopifnot(identical(rownames(x), rownames(y)))
   stopifnot(is(x, "sparseMatrix") || is.matrix(x))
   stopifnot(is(y, "sparseMatrix") || is.matrix(y))
@@ -48,7 +49,7 @@ enet <- function(x, y, adaptive = TRUE, hybrid = TRUE, tau = 1, nfolds = 10, n_r
     p("Running ...")
     res_one <- foreach(j = seq_len(n_run)) %do% {
       penalty_f <- fn_penalty(x, y, i, tau, nfolds, ...)
-      bin_coef  <- fn_fit(x, y, i, nfolds, penalty_f, ...)
+      bin_coef  <- fn_fit(x, y, i, nfolds, penalty_f, alpha, ...)
 
       return(bin_coef / sum(bin_coef))
     }
@@ -98,14 +99,15 @@ fn_hybrid_switch <- function(hybrid = TRUE) {
   }
 }
 
-fn_enet <- function(x, y, i, nfolds, penalty_f, ...) {
-  enet_cv   <- glmnetUtils::cva.glmnet(x, y[, i], nfolds = nfolds, lower.limits = 0, penalty.factor = penalty_f, ...)
+fn_enet <- function(x, y, i, nfolds, penalty_f, alpha, ...) {
+  enet_cv   <- glmnetUtils::cva.glmnet(x, y[, i], nfolds = nfolds, lower.limits = 0, penalty.factor = penalty_f, alpha = alpha, ...)
   #- Find the alpha with lowest cvm of lambda.min.
   opt_alpha <- enet_cv$alpha[which.min(vapply(enet_cv$modlist, \(x) min(x$cvm), numeric(1)))]
+  write(opt_alpha, "alpha.txt", append = TRUE)
   bin_coef  <- coef(enet_cv, alpha = opt_alpha, s = "lambda.1se")[-1, 1]
 }
 
-fn_lasso <- function(x, y, i, nfolds, penalty_f, ...) {
+fn_lasso <- function(x, y, i, nfolds, penalty_f, alpha, ...) {
   lasso_cv <- glmnet::cv.glmnet(x, y[, i], nfolds = nfolds, lower.limits = 0, alpha = 1, penalty.factor = penalty_f, ...)
   bin_coef <- coef(lasso_cv, s = "lambda.1se")[-1, 1]
 }

@@ -14,6 +14,7 @@ enet_cca(
   n_run = 5,
   num_cc = 20,
   num_bin = 50,
+  alpha = seq(0.2, 1, by = 0.1),
   ...
 )
 }
@@ -36,6 +37,8 @@ The row names of y MUST be identical to those in x. If family = "gaussian" (defa
 \item{num_cc}{number of canonical correlation vector to use.}
 
 \item{num_bin}{number of nearest bins to select.}
+
+\item{alpha}{list of alpha value used in evaluation. Note high alpha value tends to lasso regression.}
 
 \item{...}{additional parameters to \code{glmnet::cv.glmnet} or \code{glmnetUtils::glmnetUtils}.}
 }
