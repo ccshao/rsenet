@@ -8,7 +8,6 @@
 #'        The row names of y MUST be identical to those in x. If family = "gaussian" (default), it might be better to transform counts via logarithm (e.g., log2)
 #' @param adaptive whether using adaptive process (Default TRUE).
 #' @param hybrid whether to elastic net or lasso (Default TRUE).
-#' @param tau cofficient in transforming the weights to penalty as abs(weights)^(-tau). 1 by default, other choices could be 0.5, 2.
 #' @param nfolds the number of folds used in cross validation to estimate lambda (lambda and alpha in elastic net).
 #' @param n_run times of regresss to repeat per cell.
 #' @param num_cc number of canonical correlation vector to use.
@@ -21,7 +20,7 @@
 #'     The calculation is much faster than \code{enet} due to no individual estimation of penalty via ridge regression per cell.
 #' @return A probility marix with bins in rownames and cells in columns, suggesting the probility of a cell assigned to a bin.
 #' @export
-enet_cca <- function(x, y, adaptive = TRUE, hybrid = TRUE, tau = 1, nfolds = 10, n_run = 5, num_cc = 20, num_bin = 50, alpha = seq(0.2, 1.0, by = .1), ...) {
+enet_cca <- function(x, y, adaptive = TRUE, hybrid = TRUE, nfolds = 10, n_run = 5, num_cc = 20, num_bin = 50, alpha = seq(0.2, 0.8, by = .1), ...) {
   stopifnot(identical(rownames(x), rownames(y)))
   stopifnot(is(x, "sparseMatrix") || is.matrix(x))
   stopifnot(is(y, "sparseMatrix") || is.matrix(y))
