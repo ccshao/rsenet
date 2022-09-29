@@ -9,12 +9,11 @@ enet_cca(
   y,
   adaptive = TRUE,
   hybrid = TRUE,
-  tau = 1,
   nfolds = 10,
   n_run = 5,
   num_cc = 20,
   num_bin = 50,
-  alpha = seq(0.2, 1, by = 0.1),
+  alpha = seq(0.2, 0.8, by = 0.1),
   ...
 )
 }
@@ -27,8 +26,6 @@ The row names of y MUST be identical to those in x. If family = "gaussian" (defa
 \item{adaptive}{whether using adaptive process (Default TRUE).}
 
 \item{hybrid}{whether to elastic net or lasso (Default TRUE).}
-
-\item{tau}{cofficient in transforming the weights to penalty as abs(weights)^(-tau). 1 by default, other choices could be 0.5, 2.}
 
 \item{nfolds}{the number of folds used in cross validation to estimate lambda (lambda and alpha in elastic net).}
 

@@ -12,7 +12,7 @@ enet(
   tau = 1,
   nfolds = 10,
   n_run = 10,
-  alpha = seq(0.2, 1, by = 0.1),
+  alpha = seq(0.2, 0.8, by = 0.1),
   ...
 )
 }

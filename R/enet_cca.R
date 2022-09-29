@@ -20,7 +20,16 @@
 #'     The calculation is much faster than \code{enet} due to no individual estimation of penalty via ridge regression per cell.
 #' @return A probility marix with bins in rownames and cells in columns, suggesting the probility of a cell assigned to a bin.
 #' @export
-enet_cca <- function(x, y, adaptive = TRUE, hybrid = TRUE, nfolds = 10, n_run = 5, num_cc = 20, num_bin = 50, alpha = seq(0.2, 0.8, by = .1), ...) {
+enet_cca <- function(x,
+  y,
+  adaptive = TRUE,
+  hybrid   = TRUE,
+  nfolds   = 10,
+  n_run    = 5,
+  num_cc   = 20,
+  num_bin  = 50,
+  alpha    = seq(0.2, 0.8, by = .1),
+  ...) {
   stopifnot(identical(rownames(x), rownames(y)))
   stopifnot(is(x, "sparseMatrix") || is.matrix(x))
   stopifnot(is(y, "sparseMatrix") || is.matrix(y))
@@ -46,21 +55,25 @@ enet_cca <- function(x, y, adaptive = TRUE, hybrid = TRUE, nfolds = 10, n_run = 
     penalty_f <- cca_nn[cca_nn != -1]
 
     res_one <- foreach(j = seq_len(n_run)) %do% {
-      bin_coef <- fn_fit(x_new, y, i, nfolds, penalty_f, alpha, ...)
-      return(bin_coef / sum(bin_coef))
+      bin_res <- fn_fit(x_new, y, i, nfolds, penalty_f, alpha, ...)
+      return(list(bin_res[[1]] / sum(bin_res[[1]]), bin_res[[2]]))
     }
 
     #- A bins by runs matrix, return normalized weights of bins to one cell.
-    avg_one <- do.call(cbind, res_one) %>% rowMeans(na.rm = TRUE)
+    avg_one   <- do.call(cbind, lapply(res_one, "[[", 1)) %>% rowMeans(na.rm = TRUE)
+    alpha_one <- sapply(res_one, "[[", 2) %>% mean
 
     bin_vec <- rep(0, ncol(x)) %>% set_names(colnames(x))
     bin_vec[names(avg_one)] <- avg_one
-    return(bin_vec)
+    return(list(bin_vec, alpha_one))
   }
 
   #- A bins by cells matrix.
-  res <- do.call(cbind, res) %>% set_colnames(colnames(y))
-  return(res)
+  res_pred  <- do.call(cbind, lapply(res, "[[", 1)) %>% set_colnames(colnames(y))
+  alpha_all <- sapply(res, "[[", 2)
+
+  write.table(alpha_all, "alpha.txt", row.names = FALSE, col.names = FALSE)
+  return(res_pred)
 }
 
 knn_p <- function(x, y, num_cc = 20, num_bin = 50) {

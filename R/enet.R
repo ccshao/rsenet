@@ -20,7 +20,15 @@
 #'     The estmatied coefficients are normalized by the sum, and averaged value from repeated runs are returned.
 #' @return A probility marix with bins in rownames and samples in columns, suggesting the probility of a sample assigned to a bin.
 #' @export
-enet <- function(x, y, adaptive = TRUE, hybrid = TRUE, tau = 1, nfolds = 10, n_run = 10, alpha = seq(0.2, 1.0, by = .1), ...) {
+enet <- function(x,
+  y,
+  adaptive = TRUE,
+  hybrid   = TRUE,
+  tau      = 1,
+  nfolds   = 10,
+  n_run    = 10,
+  alpha    = seq(0.2, 0.8, by = .1),
+  ...) {
   stopifnot(identical(rownames(x), rownames(y)))
   stopifnot(is(x, "sparseMatrix") || is.matrix(x))
   stopifnot(is(y, "sparseMatrix") || is.matrix(y))
@@ -48,20 +56,23 @@ enet <- function(x, y, adaptive = TRUE, hybrid = TRUE, tau = 1, nfolds = 10, n_r
     #- Prediction of one cell with multiple runs to get consensus results.
     p("Running ...")
     res_one <- foreach(j = seq_len(n_run)) %do% {
-      penalty_f <- fn_penalty(x, y, i, tau, nfolds, ...)
-      bin_coef  <- fn_fit(x, y, i, nfolds, penalty_f, alpha, ...)
-
-      return(bin_coef / sum(bin_coef))
+      penalty_f <- fn_penalty(x, y, i, nfolds, tau, ...)
+      bin_res   <- fn_fit(x, y, i, nfolds, penalty_f, alpha, ...)
+      return(list(bin_res[[1]] / sum(bin_res[[1]]), bin_res[[2]]))
     }
 
     #- A bins by runs matrix, return normalized weights of bins to one cell.
-    avg_one <- do.call(cbind, res_one) %>% rowMeans(na.rm = TRUE)
-    return(avg_one)
+    avg_one   <- do.call(cbind, lapply(res_one, "[[", 1)) %>% rowMeans(na.rm = TRUE)
+    alpha_one <- sapply(res_one, "[[", 2) %>% mean
+    return(list(avg_one, alpha_one))
   }
 
   #- A bins by cells matrix.
-  res <- do.call(cbind, res) %>% set_colnames(colnames(y))
-  return(res)
+  res_pred  <- do.call(cbind, lapply(res, "[[", 1)) %>% set_colnames(colnames(y))
+  alpha_all <- sapply(res, "[[", 2)
+
+  write.table(alpha_all, "alpha.txt", row.names = FALSE, col.names = FALSE)
+  return(res_pred)
 }
 
 #- Swith adaptive.
@@ -73,7 +84,7 @@ fn_adaptive_switch <- function(adaptive = TRUE) {
   }
 }
 
-fn_adaptive_p <- function(x, y, i, tau, nfolds, ...) {
+fn_adaptive_p <- function(x, y, i, nfolds, tau, ...) {
   penalty_f <- rep_len(1, ncol(x))
 
   #- Get the coefficients of ridge regression.
@@ -103,11 +114,12 @@ fn_enet <- function(x, y, i, nfolds, penalty_f, alpha, ...) {
   enet_cv   <- glmnetUtils::cva.glmnet(x, y[, i], nfolds = nfolds, lower.limits = 0, penalty.factor = penalty_f, alpha = alpha, ...)
   #- Find the alpha with lowest cvm of lambda.min.
   opt_alpha <- enet_cv$alpha[which.min(vapply(enet_cv$modlist, \(x) min(x$cvm), numeric(1)))]
-  write(opt_alpha, "alpha.txt", append = TRUE)
   bin_coef  <- coef(enet_cv, alpha = opt_alpha, s = "lambda.1se")[-1, 1]
+  return(list(bin_coef, opt_alpha))
 }
 
 fn_lasso <- function(x, y, i, nfolds, penalty_f, alpha, ...) {
   lasso_cv <- glmnet::cv.glmnet(x, y[, i], nfolds = nfolds, lower.limits = 0, alpha = 1, penalty.factor = penalty_f, ...)
   bin_coef <- coef(lasso_cv, s = "lambda.1se")[-1, 1]
+  return(list(bin_coef, 1))
 }

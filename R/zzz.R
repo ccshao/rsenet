@@ -5,6 +5,7 @@
 #' @importFrom doRNG %dorng%
 #' @importFrom stats coef
 #' @importFrom methods is
+#' @importFrom utils write.table
 NULL
 
 #- deal with . in magrittr
