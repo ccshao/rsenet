@@ -105,6 +105,11 @@ dcca <- function(x, y, k) {
   latent_x <- res$u %>% set_colnames(paste0("k_", seq_len(k))) %>% set_rownames(colnames(x))
   latent_y <- res$v %>% set_colnames(paste0("k_", seq_len(k))) %>% set_rownames(colnames(y))
 
+  #- Make the u and v unique to sign.
+  sign_uv  <- apply(latent_x, 2, \(x) sign(x[1]))
+  latent_x <- sweep(latent_x, 2, sign_uv, "*")
+  latent_y <- sweep(latent_y, 2, sign_uv, "*")
+
   #- L2 norm per cells across latent dimensions.
   norm_x <- sweep(latent_x, 1, apply(latent_x, 1, \(x) sqrt(sum(x^2))), "/")
   norm_y <- sweep(latent_y, 1, apply(latent_y, 1, \(x) sqrt(sum(x^2))), "/")
